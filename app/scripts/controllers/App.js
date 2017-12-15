@@ -11,8 +11,10 @@ import { renderer, canvas, debug, MAX_SIZE } from '../models/global';
 import HUD from '../views/HUD';
 import Lines from '../views/Lines';
 
-const MAX_WIDTH  = 1024;
-const MAX_HEIGHT = 720;
+const MAX_WIDTH  = 0;
+const MAX_HEIGHT = 0;
+// const MAX_WIDTH  = 1024;
+// const MAX_HEIGHT = 720;
 
 let scene, camera, orbit;
 let lines, cube, mouse;
@@ -80,13 +82,22 @@ export default class App extends AppRunner {
     mouse.scale.setScalar(100);
     scene.add(mouse);
     
+    this.setupDebug();
+    
     lines = new Lines();
     lines.setup();
     scene.add(lines);
     
     this.setupLighting();
+  }
+  
+  setupDebug() {
+    let folder = Debug.gui.addFolder('Quality');
+    folder.add(debug, 'quality_high').name('High');
+    folder.add(debug, 'quality_medium').name('Medium');
+    folder.add(debug, 'quality_low').name('Low');
     
-    let folder = Debug.gui.addFolder('Room');
+    folder = Debug.gui.addFolder('Room');
     folder.addColor(debug, 'roomColor');
     folder.add(debug.bounds, 'x', 0, 1024).name('Bounds X');
     folder.add(debug.bounds, 'y', 0, 1024).name('Bounds Y');
@@ -153,8 +164,8 @@ export default class App extends AppRunner {
   }
   
   resize(evt) {
-    const w = Math.min(window.innerWidth,  MAX_WIDTH);
-    const h = Math.min(window.innerHeight, MAX_HEIGHT);
+    const w = MAX_WIDTH  > 0 ? Math.min(window.innerWidth,  MAX_WIDTH)  : window.innerWidth;
+    const h = MAX_HEIGHT > 0 ? Math.min(window.innerHeight, MAX_HEIGHT) : window.innerHeight;
     const a = w / h;
     renderer.setSize(w, h);
     
