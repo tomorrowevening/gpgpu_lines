@@ -128,7 +128,8 @@ export default class Lines extends THREE.LineSegments {
         tPos: { type:'t', value: tarPos },
         tPrev: { type: 't', value: tarPrev },
         bounds: { type:'v3', value: debug.bounds },
-        color: { type: 'v4', value: new THREE.Vector4(debug.color[0]/255, debug.color[1]/255, debug.color[2]/255, debug.alpha) }
+        colorA: { type: 'v4', value: new THREE.Vector4(debug.colorA[0]/255, debug.colorA[1]/255, debug.colorA[2]/255, debug.alphaA) },
+        colorB: { type: 'v4', value: new THREE.Vector4(debug.colorB[0]/255, debug.colorB[1]/255, debug.colorB[2]/255, debug.alphaB) }
       },
       linewidth: 1,
       vertexShader: glsl('../glsl/lines.vert'),
@@ -171,8 +172,10 @@ export default class Lines extends THREE.LineSegments {
     folder.add(debug, 'constrain');
     folder.add(debug, 'wrap');
     folder.add(debug, 'randomWrap');
-    folder.addColor(debug, 'color');
-    folder.add(debug, 'alpha', 0, 1);
+    folder.addColor(debug, 'colorA');
+    folder.addColor(debug, 'colorB');
+    folder.add(debug, 'alphaA', 0, 1);
+    folder.add(debug, 'alphaB', 0, 1);
   }
   
   reset() {
@@ -213,7 +216,8 @@ export default class Lines extends THREE.LineSegments {
     posPass.uniforms.wrap.value = debug.wrap ? 1 : (debug.randomWrap ? 2 : 0);
     
     renPass.uniforms.bounds.value = debug.bounds;
-    renPass.uniforms.color.value.set(debug.color[0]/255, debug.color[1]/255, debug.color[2]/255, debug.alpha);
+    renPass.uniforms.colorA.value.set(debug.colorA[0]/255, debug.colorA[1]/255, debug.colorA[2]/255, debug.alphaA);
+    renPass.uniforms.colorB.value.set(debug.colorB[0]/255, debug.colorB[1]/255, debug.colorB[2]/255, debug.alphaB);
     this.customDepthMaterial.uniforms.bounds.value = debug.bounds;
   }
   

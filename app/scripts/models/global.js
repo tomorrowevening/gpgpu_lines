@@ -2,6 +2,11 @@ var THREE = require('THREE');
 require('apollo-utils/ThreeUtil')(THREE);
 import { getID } from 'apollo-utils/DOMUtil';
 
+// 0 = low, 1 = medium, 2 = high
+let quality = 0;
+if(window.location.hash === '#high') quality = 2;
+else if(window.location.hash === '#medium') quality = 1;
+
 export const BG_COLOR = 0x0F0C1A;
 
 export const canvas = getID('world');
@@ -18,8 +23,21 @@ export const assets = {
   ]
 };
 
+let textureSize = 0;
+switch(quality) {
+  case 0:
+    textureSize = 32;
+  break;
+  case 1:
+    textureSize = 64;
+  break;
+  case 2:
+    textureSize = 128;
+  break;
+}
+
 export const MAX_SIZE = 512;
-export const TEX_SIZE = 64;
+export const TEX_SIZE = textureSize;
 export const FORMAT   = THREE.RGBAFormat;
 export let debug = {
   time: 1,
@@ -27,8 +45,10 @@ export let debug = {
   constrain: false,
   wrap: false,
   randomWrap: true,
-  color: [255, 255, 255],
-  alpha: 1,
+  colorA: [255, 255, 255],
+  colorB: [ 32,  32,  32],
+  alphaA: 1,
+  alphaB: 1,
   roomColor: [51, 51, 51],
   mouseColor: [153, 153, 153],
   bounds: new THREE.Vector3(MAX_SIZE, MAX_SIZE/2, MAX_SIZE),
@@ -36,7 +56,22 @@ export let debug = {
   mouse: new THREE.Vector3(0, -MAX_SIZE/3, 0),
   mouseRadius: 100,
   mouseStrength: 1,
-  mouseOpacity: 1
+  mouseOpacity: 1,
+  
+  quality_high: function() {
+    window.location.hash = '#high';
+    window.location.reload();
+  },
+  
+  quality_medium: function() {
+    window.location.hash = '#medium';
+    window.location.reload();
+  },
+  
+  quality_low: function() {
+    window.location.hash = '';
+    window.location.reload();
+  }
 };
 
 export const renderer = new THREE.WebGLRenderer({
