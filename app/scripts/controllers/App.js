@@ -1,13 +1,16 @@
 var THREE = require('THREE');
 var glsl = require('glslify');
 require('./OrbitControls')(THREE);
+require('apollo-timeline/three/EffectComposer')(THREE);
+var setupPostEffects = require('apollo-timeline/three/THREEPost')(THREE);
+var FXAAPass = require('apollo-timeline/three/passes/FXAAPass')(THREE);
 import TimelineConfig from 'apollo-timeline/TimelineConfig';
 import Debug from 'apollo-utils/Debug';
 import { listen, ignore } from 'apollo-utils/DOMUtil';
 import Event from 'apollo-utils/Event';
 import AppRunner from 'apollo-utils/AppRunner';
 import Loader from 'apollo-utils/Loader';
-import { renderer, canvas, debug, MAX_SIZE } from '../models/global';
+import { renderer, canvas, debug, settings, MAX_SIZE } from '../models/global';
 import HUD from '../views/HUD';
 import Lines from '../views/Lines';
 
@@ -16,10 +19,11 @@ const MAX_HEIGHT = 0;
 // const MAX_WIDTH  = 1024;
 // const MAX_HEIGHT = 720;
 
-let scene, camera, orbit;
+let scene, camera, orbit, post;
 let lines, cube, mouse;
 let mouseDown, mouseMove, mouseUp, mForce = 0;
 let fboEmpty;
+let fxaa;
 
 export default class App extends AppRunner {
   constructor() {
@@ -35,6 +39,19 @@ export default class App extends AppRunner {
     orbit.maxDistance = 2000;
     orbit.noPan = true;
     orbit.update();
+    
+    post = setupPostEffects(scene, camera, renderer);
+    post.enabled = true;
+    
+    fxaa = new THREE.ShaderPass({
+      uniforms: {
+        tDiffuse    : { type: 't',  value: null },
+        resolution  : { type: 'v2', value: new THREE.Vector2( 1 / 1024, 1 / 512 ) }
+      },
+      vertexShader  : glsl('../glsl/default.vert'),
+      fragmentShader: glsl('../glsl/fxaa.frag')
+    });
+    post.add( fxaa );
     
     HUD.instance;
     
@@ -92,10 +109,11 @@ export default class App extends AppRunner {
   }
   
   setupDebug() {
-    let folder = Debug.gui.addFolder('Quality');
+    let folder = Debug.gui.addFolder('App');
     folder.add(debug, 'quality_high').name('High');
     folder.add(debug, 'quality_medium').name('Medium');
     folder.add(debug, 'quality_low').name('Low');
+    folder.add(debug, 'setting', settings.names).onChange(debug.updateSetting);
     
     folder = Debug.gui.addFolder('Room');
     folder.addColor(debug, 'roomColor');
@@ -156,7 +174,12 @@ export default class App extends AppRunner {
     
     renderer.clear();
     lines.draw();
-    renderer.render(scene, camera);
+    
+    if(post.enabled) {
+      post.composer.render();
+    } else {
+      renderer.render(scene, camera);
+    }
     
     HUD.instance.draw();
     
@@ -171,6 +194,8 @@ export default class App extends AppRunner {
     
     camera.aspect = a;
     camera.updateProjectionMatrix();
+    post.resize(w, h);
+    fxaa.uniforms.resolution.value.set(1/(w*renderer.getPixelRatio()), 1/(h*renderer.getPixelRatio()));
     HUD.instance.resize(w, h);
   }
   

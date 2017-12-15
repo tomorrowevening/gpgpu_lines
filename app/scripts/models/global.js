@@ -39,6 +39,27 @@ switch(quality) {
 export const MAX_SIZE = 512;
 export const TEX_SIZE = textureSize;
 export const FORMAT   = THREE.RGBAFormat;
+export const settings = {
+  names: [
+    'blackhole',
+    'wormhole'
+  ],
+  blackhole: function() {
+    debug.mouseRadius = 250;
+    debug.mouseStrength = -15;
+    debug.mouseOpacity = 0.2;
+    debug.mouse.set(0, 0, 0);
+  },
+  wormhole: function() {
+    debug.mouseRadius = 150;
+    debug.mouseStrength = -1;
+    debug.mouseOpacity = 0.25;
+    debug.mouse.set(0, 0, 0);
+    debug.force.y = 20;
+    debug.wrap = true;
+    debug.constrain = false;
+  }
+};
 export let debug = {
   time: 1,
   friction: 0.1,
@@ -46,9 +67,9 @@ export let debug = {
   wrap: false,
   randomWrap: true,
   colorA: [255, 255, 255],
-  colorB: [ 32,  32,  32],
+  colorB: [255, 255, 255],
   alphaA: 1,
-  alphaB: 1,
+  alphaB: 0,
   roomColor: [51, 51, 51],
   mouseColor: [153, 153, 153],
   bounds: new THREE.Vector3(MAX_SIZE, MAX_SIZE/2, MAX_SIZE),
@@ -57,6 +78,7 @@ export let debug = {
   mouseRadius: 100,
   mouseStrength: 1,
   mouseOpacity: 1,
+  setting: '',
   
   quality_high: function() {
     window.location.hash = '#high';
@@ -71,6 +93,10 @@ export let debug = {
   quality_low: function() {
     window.location.hash = '';
     window.location.reload();
+  },
+  
+  updateSetting: function(setting) {
+    if(settings[setting] !== undefined) settings[setting]();
   }
 };
 

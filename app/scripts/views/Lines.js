@@ -167,7 +167,7 @@ export default class Lines extends THREE.LineSegments {
     let folder = Debug.gui.addFolder('Lines');
     folder.add(this, 'reset').name('Reset');
     folder.add(this, 'pop').name('Pop');
-    folder.add(debug, 'time', -1, 1);
+    // folder.add(debug, 'time', -1, 1);
     folder.add(debug, 'friction', 0, 1);
     folder.add(debug, 'constrain');
     folder.add(debug, 'wrap');
